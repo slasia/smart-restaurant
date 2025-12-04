@@ -11,6 +11,6 @@ const graph = new StateGraph(StateAnnotation)
 
 const result = await graph.invoke({
   userQuery:
-    "Quiero ver una partido de futbol mientras como un un asado en Mar del Plata",
+    "Me gusta la carne mientras veo un partido de futbol en Mar del Plata",
 });
 console.log(result);
