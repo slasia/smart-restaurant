@@ -6,12 +6,18 @@
   "scripts": {
     "build": "tsc",
     "type-check": "tsc --noEmit",
+    "start": "npm run build && node dist/graph/graph.js",
+    "dev": "tsx src/graph/graph.ts",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\""
   },
-  "keywords": ["langchain", "restaurant", "ai"],
+  "keywords": [
+    "langchain",
+    "restaurant",
+    "ai"
+  ],
   "author": "",
   "license": "ISC",
   "description": "Smart restaurant project using LangChain",
@@ -20,6 +26,7 @@
     "@langchain/core": "^1.0.6",
     "@langchain/langgraph": "^1.0.2",
     "@langchain/openai": "^1.1.2",
+    "dotenv": "^17.2.3",
     "langchain": "^1.0.5",
     "serpapi": "^2.2.1"
   },
@@ -29,6 +36,7 @@
     "@typescript-eslint/parser": "^7.0.0",
     "eslint": "^8.57.0",
     "prettier": "^3.2.5",
+    "tsx": "^4.7.0",
     "typescript": "^5.3.3"
   }
 }
