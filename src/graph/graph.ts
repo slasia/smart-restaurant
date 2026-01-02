@@ -1,15 +1,15 @@
 import "dotenv/config";
 import { StateGraph, START, END } from "@langchain/langgraph";
-import { StateAnnotation } from "./type";
+import { StateAnnotation } from "./state";
 import {
   llmNode,
   toolsNode,
-  shouldContinue,
+  shouldExecuteTools,
   finalizeNode,
   ragNode,
   shouldSearchInInternet,
-} from "../agents/cuisineAgent";
-import { EXAMPLE_INITIAL_STATE } from "../inputs/exampleInput";
+} from "./nodes";
+import { EXAMPLE_INITIAL_STATE } from "../fixtures/fixtures";
 
 const graph = new StateGraph(StateAnnotation)
   // RAG node that processes the query
@@ -23,7 +23,7 @@ const graph = new StateGraph(StateAnnotation)
   // Initial flow: START -> RAG
   .addEdge(START, "rag")
   // Conditional decision: after LLM, decide whether to go to tools or finalize
-  .addConditionalEdges("llm", shouldContinue, {
+  .addConditionalEdges("llm", shouldExecuteTools, {
     tools: "tools", // If there are tool_calls → go to tools
     end: "finalize", // If there are no tool_calls → finalize
   })

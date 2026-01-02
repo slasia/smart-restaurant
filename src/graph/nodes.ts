@@ -1,22 +1,22 @@
-import { openAIModel } from "../llms/openIA";
+import { chatModel } from "../models/openai";
 import { restaurantSearch } from "../tools/serpTool";
-import { State } from "../graph/type";
+import { State } from "../graph/state";
 import { HumanMessage, AIMessage, ToolMessage } from "@langchain/core/messages";
-import { CUISINE_PROMPT_TEMPLATE } from "../prompts/cuisinePrompt";
-import { loadDocuments } from "../RAG/loader";
-import { splitDocuments } from "../RAG/splitter";
-import { createVectorStore } from "../RAG/store";
-import { createRAGAgent } from "./ragAgent";
+import { RESTAURANT_PROMPT_TEMPLATE } from "../prompts/restaurantPrompt";
+import { loadDocuments } from "../rag/loader";
+import { splitDocuments } from "../rag/splitter";
+import { createVectorStore } from "../rag/store";
+import { createRAGAgent } from "../agents/ragAgent";
 
 export async function llmNode(state: State): Promise<State> {
-  const llmWithTools = openAIModel.bindTools([restaurantSearch]);
+  const llmWithTools = chatModel.bindTools([restaurantSearch]);
 
   // If there are no messages or the array is empty, create the initial message
   const isFirstCall = !state.messages || state.messages.length === 0;
   const messages = isFirstCall
     ? [
         new HumanMessage({
-          content: CUISINE_PROMPT_TEMPLATE(state.userQuery),
+          content: RESTAURANT_PROMPT_TEMPLATE(state.userQuery),
         }),
       ]
     : state.messages;
@@ -178,25 +178,27 @@ export function shouldSearchInInternet(state: State): "internet" | "end" {
     return "end";
   }
 }
-export function shouldContinue(state: State): "tools" | "end" {
+export function shouldExecuteTools(state: State): "tools" | "end" {
   const messages = state.messages || [];
 
-  console.log("\n🟡 [shouldContinue] ========================================");
   console.log(
-    `🟡 [shouldContinue] Evaluating whether to continue with tools or finalize...`
+    "\n🟡 [shouldExecuteTools] ========================================"
   );
   console.log(
-    `🟡 [shouldContinue] Total messages in history: ${messages.length}`
+    `🟡 [shouldExecuteTools] Evaluating whether to continue with tools or finalize...`
+  );
+  console.log(
+    `🟡 [shouldExecuteTools] Total messages in history: ${messages.length}`
   );
 
   // If there are no messages, we cannot continue (this shouldn't happen, but for safety)
   if (messages.length === 0) {
-    console.log(`🟡 [shouldContinue] ⚠️  No messages, finalizing`);
+    console.log(`🟡 [shouldExecuteTools] ⚠️  No messages, finalizing`);
     return "end";
   }
 
   const lastMessage = messages[messages.length - 1];
-  console.log(`🟡 [shouldContinue] Last message:`, {
+  console.log(`🟡 [shouldExecuteTools] Last message:`, {
     type: lastMessage.constructor.name,
     isAIMessage: lastMessage instanceof AIMessage,
     isToolMessage: lastMessage instanceof ToolMessage,
@@ -209,31 +211,33 @@ export function shouldContinue(state: State): "tools" | "end" {
     lastMessage.tool_calls.length > 0
   ) {
     console.log(
-      `🟡 [shouldContinue] ✅ LLM wants to execute ${lastMessage.tool_calls.length} tool(s)`
+      `🟡 [shouldExecuteTools] ✅ LLM wants to execute ${lastMessage.tool_calls.length} tool(s)`
     );
-    console.log(`🟡 [shouldContinue] → Decision: GO TO TOOLS (execute tools)`);
     console.log(
-      `🟡 [shouldContinue] → Reason: LLM needs more information before responding`
+      `🟡 [shouldExecuteTools] → Decision: GO TO TOOLS (execute tools)`
+    );
+    console.log(
+      `🟡 [shouldExecuteTools] → Reason: LLM needs more information before responding`
     );
     return "tools";
   }
 
   // If there are no tool_calls, the LLM has the final response
   if (lastMessage instanceof AIMessage) {
-    console.log(`🟡 [shouldContinue] ✅ LLM has no more tool_calls`);
+    console.log(`🟡 [shouldExecuteTools] ✅ LLM has no more tool_calls`);
     console.log(
-      `🟡 [shouldContinue] → Decision: FINALIZE (LLM has the final response)`
+      `🟡 [shouldExecuteTools] → Decision: FINALIZE (LLM has the final response)`
     );
     console.log(
-      `🟡 [shouldContinue] → Reason: LLM already has enough information to respond`
+      `🟡 [shouldExecuteTools] → Reason: LLM already has enough information to respond`
     );
   } else if (lastMessage instanceof ToolMessage) {
-    console.log(`🟡 [shouldContinue] ✅ Last message is a tool result`);
+    console.log(`🟡 [shouldExecuteTools] ✅ Last message is a tool result`);
     console.log(
-      `🟡 [shouldContinue] → Decision: FINALIZE (waiting for LLM response in next iteration)`
+      `🟡 [shouldExecuteTools] → Decision: FINALIZE (waiting for LLM response in next iteration)`
     );
     console.log(
-      `🟡 [shouldContinue] → Note: This shouldn't happen, the LLM should have already responded`
+      `🟡 [shouldExecuteTools] → Note: This shouldn't happen, the LLM should have already responded`
     );
   }
 
