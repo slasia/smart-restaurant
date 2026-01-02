@@ -22,13 +22,17 @@
   "license": "ISC",
   "description": "Smart restaurant project using LangChain",
   "dependencies": {
-    "@langchain/community": "^1.0.4",
-    "@langchain/core": "^1.0.6",
+    "@langchain/classic": "^1.0.7",
+    "@langchain/community": "^1.1.1",
+    "@langchain/core": "^1.1.8",
     "@langchain/langgraph": "^1.0.2",
     "@langchain/openai": "^1.1.2",
+    "@langchain/textsplitters": "^1.0.1",
+    "d3-dsv": "^2.0.0",
     "dotenv": "^17.2.3",
     "langchain": "^1.0.5",
-    "serpapi": "^2.2.1"
+    "serpapi": "^2.2.1",
+    "zod": "^4.3.4"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
