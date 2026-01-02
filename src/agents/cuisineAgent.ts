@@ -253,9 +253,7 @@ export async function ragNode(state: State): Promise<State> {
   console.log(`🟣 [ragNode] RAG system initialized`);
   console.log(`🟣 [ragNode] Processing query: ${state.userQuery}`);
 
-  console.log(
-    `\n🟣 [ragNode] 🔍 Checking direct search in vector store...`
-  );
+  console.log(`\n🟣 [ragNode] 🔍 Checking direct search in vector store...`);
   const directSearch = await vectorStore.similaritySearch(state.userQuery, 2);
   const hasDirectResults =
     directSearch.length > 0 &&
