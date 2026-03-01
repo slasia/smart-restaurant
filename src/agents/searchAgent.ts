@@ -1,6 +1,6 @@
-import { chatModel } from "../models/openai";
 import { restaurantSearch } from "../tools/serpTool";
 import { createAgent, SystemMessage } from "langchain";
+import { DEFAULT_CHAT_MODEL, SEARCH_AGENT_SYSTEM_PROMPT } from "../config/aiConfig";
 
 /**
  * Creates an internet search agent for restaurant recommendations
@@ -8,14 +8,10 @@ import { createAgent, SystemMessage } from "langchain";
  */
 export async function createSearchAgent() {
   const tools = [restaurantSearch];
-  const systemPrompt = new SystemMessage(
-    "You are a restaurant recommendation assistant. " +
-      "Search for restaurants on the internet using the restaurantSearch tool based on user preferences. " +
-      "Format your response in Markdown with restaurant recommendations including name, location, and relevant details."
-  );
+  const systemPrompt = new SystemMessage(SEARCH_AGENT_SYSTEM_PROMPT);
 
   const agent = createAgent({
-    model: "gpt-4o-mini",
+    model: DEFAULT_CHAT_MODEL,
     tools,
     systemPrompt,
   });

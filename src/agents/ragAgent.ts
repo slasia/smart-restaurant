@@ -2,6 +2,11 @@ import * as z from "zod";
 import { tool } from "@langchain/core/tools";
 import { createAgent, SystemMessage } from "langchain";
 import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory";
+import {
+  RAG_AGENT_MODEL,
+  RAG_SYSTEM_PROMPT,
+  RAG_TOOL_DESCRIPTION,
+} from "../config/aiConfig";
 
 export async function createRAGAgent(vectorStore: MemoryVectorStore) {
   const retrieveSchema = z.object({ query: z.string() });
@@ -18,19 +23,16 @@ export async function createRAGAgent(vectorStore: MemoryVectorStore) {
     },
     {
       name: "retrieve",
-      description: "Retrieve information related to a query.",
+      description: RAG_TOOL_DESCRIPTION,
       schema: retrieveSchema,
       responseFormat: "content_and_artifact",
     }
   );
 
   const tools = [retrieve];
-  const systemPrompt = new SystemMessage(
-    "You have access to a tool that retrieves context from a document with restaurants from tandil. " +
-      "Use the tool to help answer user queries. if you cant found an option, please return false"
-  );
+  const systemPrompt = new SystemMessage(RAG_SYSTEM_PROMPT);
 
-  const agent = createAgent({ model: "gpt-5", tools, systemPrompt });
+  const agent = createAgent({ model: RAG_AGENT_MODEL, tools, systemPrompt });
 
   return agent;
 }
